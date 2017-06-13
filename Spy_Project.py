@@ -1,12 +1,15 @@
 from spy_details import Spy, old, friends, spy, chat
 from steganography.steganography import Steganography
-from datetime import datetime
+import datetime
+import termcolor
 
+Status_messages = ["Available", "Can't talk right now!", "Driving", "Busy"]  # Default statuses
+Special_words = ["SOS","help","save me"]
 
-Status_messages = ["Available", "Can't talk right now!", "Driving", "Busy"]
+total_reads = 0
+avg = 0
 
 user = raw_input("Do you want to continue as default user i.e [%s. %s] (y/n)? " % (spy.salutation, spy.name))
-
 if user.lower() == "y":
     print "Authentication completed."
     print 'Welcome %s. %s, your age is %d with rating %.2f' % (spy.salutation, spy.name, spy.age, spy.rating)
@@ -137,9 +140,9 @@ def select_a_friend(task):
         print '%d. %s. %s aged %d with rating %.2f is online' % (index, i.salutation, i.name, i.age, i.rating)
     if task == 0:
         select = int(raw_input("Select one of the friends to send message: "))
-    if task == 1:
+    elif task == 1:
         select = int(raw_input("Select friend from whom you want to read message: "))
-    if task == 2: #this
+    elif task == 2:
         select = int(raw_input("Select friend whose chat you want to read: "))
     if index >= select >0:
         select = select -1
@@ -159,8 +162,6 @@ def send_a_message():
             print "Message sent"
             new_chat = chat(secret_message, True)
             friends[friend_selected].chats.append(new_chat)
-            #here this is while sending, you ned to this read also
-            print friends[friend_selected].chats
         if image == "":
             print "You did not enter the Image name\nMessage was not sent"
         elif secret_message == "":
@@ -170,30 +171,55 @@ def send_a_message():
 
 def read_a_message():
     read = 1
+
+    global avg
+    global total_reads
+
     friend_selected = select_a_friend(read)
-    secret_message = ""
     if friend_selected != -1:
         output_path = raw_input("Enter the image name: ")
         secret_message = Steganography.decode(output_path)
         if secret_message != "":
             print secret_message
             new_chat = chat(secret_message, False)
+            total_words = avg * total_reads + len(secret_message.split())
+            total_reads = total_reads +1
             friends[friend_selected].chats.append(new_chat)
+            avg = total_words/total_reads
+            print "Average words spoken by a spy = %d" % (avg)
         else:
             print "There is no sercret message."
     else:
         print "Friend not selected"
-        #hey you are not appending the message to frineds chat object
 
 def read_chat():
     r_chat = 2
+    flag = 1
+    friend_message = ""
     person = select_a_friend(r_chat)
     if person != -1:
-        for chat in friends[person].chats:
-            if chat.sent_by_me:
-                print '[%s] %s: %s' % (chat.datetime.strftime("%d %B %Y"), 'You said:', chat.message)
-            else:
-                print '[%s] %s said: %s' % (chat.datetime.strftime("%d %B %Y"), friends[person].name, chat.message)
+            for chatt in friends[person].chats:
+                friend_message = chatt.message
+                if chatt.message != "":
+                    time = termcolor.colored(chatt.datetime.strftime("%d-%B-%Y"),'blue')
+                    spyname = termcolor.colored(friends[person].name, 'red')
+                    if chatt.sent_by_me:
+                        print time+' You said: ',chatt.message
+                        flag = 0
+                    else:
+                        if flag == 1:
+                            print time + ' ' + spyname + ' Said: ', chatt.message
+                    if len(friend_message.split()) > 100:
+                        friends.__delitem__(person)
+                        print "Friend deleted as he spoke more than 100 words."
+                    k = 0
+                    for i in friend_message.split():
+                        if i.find(Special_words[k]):
+                            print 'There are special words in the chat.'
+                            break
+                        k = k + 1
+                    if friend_message == "":
+                        print "Chat is empty"
     else:
         print "Friend not selected"
 def begin():
@@ -214,6 +240,7 @@ def begin():
         elif select == 5:
             read_chat()
         elif select == 6:
+
             print "Closing Application..."
             exit()
         else:
