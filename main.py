@@ -5,7 +5,8 @@ import termcolor
 
 Status_messages = ["Available", "Can't talk right now!", "Driving", "Busy"]  # Default statuses
 Special_words = ["SOS","help","save me"]
-
+global current_status_message
+current_status_message = "Available"
 total_reads = 0
 avg = 0
 
@@ -16,25 +17,24 @@ if user.lower() == "y":
     old = 1 #Further used to check the defualt user or new user.
 elif user.lower() == "n":
     new_spy = Spy('', '', 0, 0.0) #Creating object for class 'Spy'
-    new_spy.name = raw_input("Enter your name: ")
-    new_spy.salutation = raw_input("Enter salutation: ")
+    name = raw_input("Enter name: ")
+    salutation = raw_input("Enter salutation: ")
     new_spy.age = int(raw_input ("Enter your age: "))
     new_spy.rating = float(raw_input("Enter your rating: "))
     count = 0
-    for i in new_spy.name: #Checking for valid name input.
-        if not i.isalpha():
-            count = count + 1
+    if name.isdigit() or name == "" or name.isspace(): #Checking for valid name input.
+        count = count + 1
     if count != 0:
         print "\nWARNING: Invalid name entented"
         exit()
     count = 0
-    for i in new_spy.salutation: #Checking for valid salutation input.
-        if not i.isalpha():
+    for i in salutation: #Checking for valid salutation input.
+        if salutation.isdigit() or salutation == "" or salutation.isspace():
             count = count + 1
     if count != 0:
         print "\nWARNING: Invalid saluation entented"
         exit()
-    if new_spy.name == "": #Handling the corner case for empty name.
+    if name == "": #Handling the corner case for empty name.
         print "Name cannot be left empty."
         exit()
     elif new_spy.age >=50 or new_spy.age <= 12: #Checking age eligibility.
@@ -47,6 +47,8 @@ elif user.lower() == "n":
         print "Invalid spy rating."
         exit()
     else:
+        new_spy.name = name
+        new_spy.salutation = salutation
         print "Authentication completed."
         print 'Welcome %s. %s, your age is %d with rating %.2f' % (new_spy.salutation, new_spy.name, new_spy.age, new_spy.rating)
         if 2.5 >= new_spy.rating >= 0:
@@ -61,10 +63,12 @@ else:
     exit()
 
 def add_status(): #Function to add a status.
+    global current_status_message
     index = 0
     for i in Status_messages: #Loop to print the list of available statuses with us.
         index = index + 1
         print index, i
+    print 'Current status = ' + current_status_message
     option = raw_input("Do you want to select from older statuses (y/n)? ")
     index = index -1
     if option.upper() == "Y": #if user wants to select from the available statuses.
@@ -76,6 +80,7 @@ def add_status(): #Function to add a status.
         else:
             print 'Wrong input.' #checking for correct index input of available statuses.
     elif option.upper() == "N": #if user wants to enter new status.
+        print 'Current status = %s' % (current_status_message)
         new_status = raw_input("Enter new status: ")
         if new_status != "" and new_status.isspace() == False: #Checking for correct input of the new status.
             Status_messages.append(new_status)
@@ -90,25 +95,27 @@ def add_friend(): #Function to add a friend.
 
     new_friend = Spy('','',0,0.0) #Creating object for class 'Spy'
 
-    new_friend.name = raw_input("Enter friend's name: ") #taking input.
-    new_friend.salutation = raw_input("Enter friend's salutation: ")
+    name = raw_input("Enter friend's name: ") #taking input.
+    salutation = raw_input("Enter friend's salutation: ")
     new_friend.age = int(raw_input("Enter friend's age: "))
     new_friend.rating = float(raw_input("Enter friend's rating: "))
     count = 0
-    for i in new_friend.name: #checking valid name or not.
-        if not i.isalpha():
+    for i in name: #checking valid name or not.
+        if name.isdigit() or name == "" or name.isspace(): #Checking for valid name input.:
             count = count + 1
     if count != 0:
         print "\nWARNING: Invalid name entented"
     count1 = 0
-    for i in new_friend.salutation: #checking valid salutation or not.
-        if not i.isalpha():
+    for i in salutation: #checking valid salutation or not.
+        if salutation.isdigit() or salutation == "" or salutation.isspace(): #Checking for valid salutation input.
             count1 = count1 + 1
     if count1 != 0:
         print "\nWARNING: Invalid saluation entented"
     if count == 0 and count1 == 0:
         if old == 1:
-            if new_friend.name != "" and 12 < new_friend.age < 50 and new_friend.rating >= spy.rating and new_friend.rating <= 5:
+            if name != "" and 12 < new_friend.age < 50 and new_friend.rating >= spy.rating and new_friend.rating <= 5 and salutation != "":
+                new_friend.name = name
+                new_friend.salutation = salutation
                 friends.append(new_friend)
                 print "New friend added."
             else: #checking all corner cases.
@@ -118,19 +125,26 @@ def add_friend(): #Function to add a friend.
                     print "Friend's rating is less than the spy rating."
                 elif new_friend.age <= 12 or new_friend.age >= 50:
                     print "Friend's age is not eligible."
+                elif new_friend.salutation == "":
+                    print "Friend's salutation cannot be left empty."
                 elif new_friend.name == "":
                     print "Friend's name cannot be left empty."
+
         elif old == 0: #if user selects for the new user, then we check the rating with the new user's rating with friend's rating.
-            if new_friend.name != " " and 12 < new_friend.age < 50 and new_friend.rating >= spy.rating and new_friend.rating <= 5 :
+            if name != " " and 12 < new_friend.age < 50 and new_friend.rating >= spy.rating and new_friend.rating <= 5 and salutation != "" :
+                new_friend.name = name
+                new_friend.salutation = salutation
                 friends.append(new_friend)
                 print "New friend added."
             else:
-                if new_friend.name == "":
-                    print "Friend's name cannot be left empty."
+                if new_friend.salutation == "":
+                    print "Friend's salutation cannot be left empty."
                 elif new_friend.age <= 12 or new_friend.age >= 50:
                     print "Friend's age is not eligible."
                 elif new_friend.rating < new_spy.rating:
                     print "Friend's rating is less than the spy rating."
+                elif new_friend.name == "":
+                    print "Friend's name cannot be left empty."
     return len(friends) #For number of friends.
 
 def select_a_friend(task): #task is for printing appropiate msg depending upon which function is calling it.
@@ -171,10 +185,6 @@ def send_a_message():
 
 def read_a_message():
     read = 1
-
-    global avg
-    global total_reads
-
     friend_selected = select_a_friend(read) #'read' to print specific message to select a friend
     if friend_selected != -1:
         output_path = raw_input("Enter the image name: ")
@@ -182,17 +192,15 @@ def read_a_message():
         if secret_message != "":
             print secret_message
             new_chat = chat(secret_message, False) #saving the secret essage to the chats.
-            total_words = avg * total_reads + len(secret_message.split())
-            total_reads = total_reads +1
             friends[friend_selected].chats.append(new_chat)
-            avg = total_words/total_reads #checking average words spoken by a spy.
-            print "Average words spoken by a spy = %d" % (avg)
         else:
             print "There is no sercret message." #Handling corner case for no secret message.
     else:
         print "Friend not selected" #Handling corner case for wrong input for selection of a friend.
 
 def read_chat(): #Function to print the chat history
+    global avg
+    global total_reads
     r_chat = 2
     flag = 1
     friend_message = ""
@@ -200,7 +208,7 @@ def read_chat(): #Function to print the chat history
     if person != -1:
             for chatt in friends[person].chats:
                 friend_message = chatt.message
-                if chatt.message != "":
+                if friend_message != "":
                     time = termcolor.colored(chatt.datetime.strftime("%d-%B-%Y"),'blue')
                     spyname = termcolor.colored(friends[person].name, 'red')
                     if chatt.sent_by_me:
@@ -209,6 +217,10 @@ def read_chat(): #Function to print the chat history
                     else:
                         if flag == 1:
                             print time + ' ' + spyname + ' Said: ', chatt.message
+                    total_words = avg * total_reads + len(friend_message.split())
+                    total_reads = total_reads + 1
+                    avg = total_words / total_reads  # checking average words spoken by a spy.
+                    print "Average words spoken by a spy = %d" % (avg)
                     if len(friend_message.split()) > 100: #if spy speaks more than 100 words, he'll no longer be a spy.
                         friends.__delitem__(person)
                         print "Friend deleted as he spoke more than 100 words, [ %d ] words." %(len(friend_message.split()))
